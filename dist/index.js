@@ -48,8 +48,8 @@ function run() {
             try {
                 const octokit = github.getOctokit(token);
                 const req = yield octokit.request(`GET /`);
-                core.info(`whoami body: ${req.data}`);
-                core.info(`${req.headers}`);
+                core.info(`whoami body: ${JSON.stringify(req.data)}`);
+                core.info(`${JSON.stringify(req.headers)}`);
             }
             catch (error) {
                 core.warning('github.getOctokit failed');
@@ -63,8 +63,8 @@ function run() {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                core.info(`whoami headers: ${res.headers}`);
-                core.info(`whoami body: ${res.data}`);
+                core.info(`whoami headers: ${JSON.stringify(res.headers)}`);
+                core.info(`whoami body: ${JSON.stringify(res.data)}`);
             }
             catch (error) {
                 core.warning('await request failed');

@@ -19,8 +19,8 @@ async function run(): Promise<void> {
     try {
       const octokit = github.getOctokit(token)
       const req = await octokit.request(`GET /`)
-      core.info(`whoami body: ${req.data}`)
-      core.info(`${req.headers}`)
+      core.info(`whoami body: ${JSON.stringify(req.data)}`)
+      core.info(`${JSON.stringify(req.headers)}`)
     } catch (error: unknown) {
       core.warning('github.getOctokit failed')
       core.warning(error instanceof Error ? error : `${error}`)
@@ -36,8 +36,8 @@ async function run(): Promise<void> {
           Authorization: `Bearer ${token}`
         }
       })
-      core.info(`whoami headers: ${res.headers}`)
-      core.info(`whoami body: ${res.data}`)
+      core.info(`whoami headers: ${JSON.stringify(res.headers)}`)
+      core.info(`whoami body: ${JSON.stringify(res.data)}`)
     } catch (error: unknown) {
       core.warning('await request failed')
       core.warning(error instanceof Error ? error : `${error}`)
