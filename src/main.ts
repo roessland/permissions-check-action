@@ -1,18 +1,31 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import * as github from '@actions/github'
+import {getOctokit} from '@actions/github'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const token: string = core.getInput('token')
+    core.warning(
+      `Token was passed implicitly to third party action! Here it is: ${token}`
+    )
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    core.warning(
+      `GitHub context was passed implicitly to third party action! Here it is: ${JSON.stringify(
+        github.context
+      )}`
+    )
 
-    core.setOutput('time', new Date().toTimeString())
+    const octokit = getOctokit(token)
+
+    // https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app
+    core.info(
+      'Calling GitHub API GET /app to see what permissions this token has'
+    )
+    const res = await octokit.request(`GET /app`)
+    core.info(`whoami headers: ${res.headers}`)
+    core.info(`whoami body: ${res.data}`)
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    core.setFailed(error instanceof Error ? error.message : `${error}`)
   }
 }
 

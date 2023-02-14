@@ -1,11 +1,11 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Permissions check action'
+description: 'Shows you what files and permissions an action is able to access'
+author: 'Andreas Røssland'
 inputs:
-  milliseconds: # change this
+  token:
+    description: GitHub token. Defaults to `github.token`
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    default: ${{ github.token }}
 runs:
   using: 'node16'
   main: 'dist/index.js'
