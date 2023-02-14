@@ -1,11 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {createActionAuth} from '@octokit/auth-action'
 import {request} from '@octokit/request'
 
 async function run(): Promise<void> {
   try {
     const token: string = core.getInput('token')
+    core.info(`token has length ${token.length}`)
     core.warning(
       `Token was passed implicitly to third party action! Here it is: ${token}`
     )
@@ -16,24 +16,34 @@ async function run(): Promise<void> {
       )}`
     )
 
-    const auth = createActionAuth()
-    const authentication = await auth()
+    try {
+      const octokit = github.getOctokit(token)
+      const req = await octokit.request(`GET /`)
+      core.info(`whoami body: ${req.data}`)
+      core.info(`${req.headers}`)
+    } catch (error: unknown) {
+      core.warning('github.getOctokit failed')
+      core.warning(error instanceof Error ? error : `${error}`)
+    }
 
-    core.info(`authentication: ${authentication} ${authentication.tokenType}`)
-
-    // https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app
-    core.info(
-      'Calling GitHub API GET /app to see what permissions this token has'
-    )
-    const res = await request(`GET /app`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    core.info(`whoami headers: ${res.headers}`)
-    core.info(`whoami body: ${res.data}`)
+    try {
+      // https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app
+      core.info(
+        'Calling GitHub API GET / to see what permissions this token has'
+      )
+      const res = await request(`GET /`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      core.info(`whoami headers: ${res.headers}`)
+      core.info(`whoami body: ${res.data}`)
+    } catch (error: unknown) {
+      core.warning('await request failed')
+      core.warning(error instanceof Error ? error : `${error}`)
+    }
   } catch (error) {
-    core.setFailed(error instanceof Error ? error.message : `${error}`)
+    core.warning(error instanceof Error ? error.message : `${error}`)
   }
 }
 
