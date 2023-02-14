@@ -46,14 +46,15 @@ function run() {
             core.warning(`Token was passed implicitly to third party action! Here it is: ${token}`);
             core.warning(`GitHub context was passed implicitly to third party action! Here it is: ${JSON.stringify(github.context)}`);
             const auth = (0, auth_action_1.createActionAuth)();
-            const requestWithAuth = request_1.request.defaults({
-                request: {
-                    hook: auth.hook
-                }
-            });
+            const authentication = yield auth();
+            core.info(`authentication: ${authentication} ${authentication.tokenType}`);
             // https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app
             core.info('Calling GitHub API GET /app to see what permissions this token has');
-            const res = yield requestWithAuth(`GET /app`);
+            const res = yield (0, request_1.request)(`GET /app`, {
+                headers: {
+                    Authorization: `Bearer ${authentication.token}`
+                }
+            });
             core.info(`whoami headers: ${res.headers}`);
             core.info(`whoami body: ${res.data}`);
         }
