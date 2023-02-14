@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {createActionAuth} from '@octokit/auth-action'
-import {getOctokit} from '@actions/github'
+import {request} from '@octokit/request'
 
 async function run(): Promise<void> {
   try {
@@ -17,14 +17,17 @@ async function run(): Promise<void> {
     )
 
     const auth = createActionAuth()
-    const authentication = await auth()
-    const octokit = getOctokit(authentication.token)
+    const requestWithAuth = request.defaults({
+      request: {
+        hook: auth.hook
+      }
+    })
 
     // https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app
     core.info(
       'Calling GitHub API GET /app to see what permissions this token has'
     )
-    const res = await octokit.request(`GET /app`)
+    const res = await requestWithAuth(`GET /app`)
     core.info(`whoami headers: ${res.headers}`)
     core.info(`whoami body: ${res.data}`)
   } catch (error) {
