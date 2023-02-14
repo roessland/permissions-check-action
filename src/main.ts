@@ -27,7 +27,7 @@ async function run(): Promise<void> {
     )
     const res = await request(`GET /app`, {
       headers: {
-        Authorization: `Bearer ${authentication.token}`
+        Authorization: `Bearer ${token}`
       }
     })
     core.info(`whoami headers: ${res.headers}`)

@@ -52,7 +52,7 @@ function run() {
             core.info('Calling GitHub API GET /app to see what permissions this token has');
             const res = yield (0, request_1.request)(`GET /app`, {
                 headers: {
-                    Authorization: `Bearer ${authentication.token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
             core.info(`whoami headers: ${res.headers}`);
