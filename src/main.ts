@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import {exec} from '@actions/exec'
 import {request} from '@octokit/request'
 
 async function run(): Promise<void> {
@@ -16,9 +17,25 @@ async function run(): Promise<void> {
       )}`
     )
 
+    // Dump contents of current directory
+    try {
+      core.info(
+        'listing files with git ls-files to see if third party action can see checked out files'
+      )
+      await exec('pwd')
+      await exec('ls')
+      await exec('git', ['ls-files'])
+    } catch (error: unknown) {
+      core.warning('get current directory failed')
+      core.warning(error instanceof Error ? error : `${error}`)
+    }
+
     try {
       const octokit = github.getOctokit(token)
-      const req = await octokit.request(`GET /`)
+      const req = await octokit.request(`GET /repos/{owner}/{repo}/commits`, {
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo
+      })
       core.info(`whoami body: ${JSON.stringify(req.data)}`)
       core.info(`${JSON.stringify(req.headers)}`)
     } catch (error: unknown) {
@@ -31,7 +48,9 @@ async function run(): Promise<void> {
       core.info(
         'Calling GitHub API GET / to see what permissions this token has'
       )
-      const res = await request(`GET /`, {
+      const res = await request(`GET /repos/{owner}/{repo}/commits`, {
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
         headers: {
           Authorization: `Bearer ${token}`
         }
