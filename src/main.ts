@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import {createActionAuth} from '@octokit/auth-action'
 import {getOctokit} from '@actions/github'
 
 async function run(): Promise<void> {
@@ -15,7 +16,9 @@ async function run(): Promise<void> {
       )}`
     )
 
-    const octokit = getOctokit(token)
+    const auth = createActionAuth()
+    const authentication = await auth()
+    const octokit = getOctokit(authentication.token)
 
     // https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#get-the-authenticated-app
     core.info(
